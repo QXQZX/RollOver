@@ -26,7 +26,7 @@ int PASCAL WinMain(HINSTANCE hInstance,
 	LPSTR     lpCmdLine,
 	int       nCmdShow)
 {
-	init();
+	//init();
 
 	if (!CSystem::InitGameEngine(hInstance, lpCmdLine)) {
 		return 0;
