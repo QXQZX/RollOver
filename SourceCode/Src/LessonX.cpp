@@ -13,6 +13,7 @@
 //
 //
 CGameMain		g_GameMain;
+bool CGameMain::lianliankan_init = false;
 extern int total_zombie;
 extern int bowling_counter;
 extern long double game_start;
@@ -168,11 +169,12 @@ void CGameMain::GameRun(float fDeltaTime)
 	switch (map_id) {
 	case MapType::AdventureType:
 		load_adventure_level(adventure_level_id, fDeltaTime);
-		//ConfigConvert::addConfig("./sss.ini", "key", "value", "test");
 		break;
 	case MapType::BowlingType:
 		load_bowling(fDeltaTime);
-		
+		break;
+	case MapType::LianLianKanType:
+		load_lianliankan(fDeltaTime);
 		break;
 	default:
 		break;
@@ -511,14 +513,12 @@ void CGameMain::load_adventure_level(int level_id, long double fDeltaTime) {
 	static int BucketheadZombieCount = 0;
 	static int NewspaperZombieCount = 0;
 	static int FootballZombieCount = 0;
-	static int statr_timer = fDeltaTime;
-	static int time_a_game = 10; // 一局时长
+	static int time_a_game = 180; // 一局时长
 	static int row_min = 0, row_max = 4; // 僵尸生成边界
 	const float first_zombie = 10;
 	static float zombie_interval = first_zombie; // 僵尸生成边界
 	// 当前地图为 冒险模式的地图 且未初始化
 	if (adventure_init == false) {
-		game_start = fDeltaTime;
 		// 从配置文件加载僵尸数量信息
 		char level[20];
 		sprintf(level, "level_%d", level_id);
@@ -553,19 +553,21 @@ void CGameMain::load_adventure_level(int level_id, long double fDeltaTime) {
 
 		sun_num->SetTextValue(sun_count);
 		adventure_init = true;
-		statr_timer = fDeltaTime;
+		game_start = fDeltaTime;
 		zombie_interval = first_zombie;
 	}
 
 	if (adventure_init == true) {
 		if (fDeltaTime - timer > 4) {
-			output_sun();
-			timer = fDeltaTime;
+			if (level_id < 4) {
+				output_sun();
+				timer = fDeltaTime;
+			}
 		}
 
-		if ((fDeltaTime - statr_timer) / time_a_game <= 1) {
+		if ((fDeltaTime - game_start) / time_a_game <= 1) {
 			// 根据游戏时间 设置进度条长度
-			progress_bar->SetSpriteWidth(18 * (fDeltaTime - statr_timer) / time_a_game);
+			progress_bar->SetSpriteWidth(18 * (fDeltaTime - game_start) / time_a_game);
 			progress_bar->SetSpritePosition(44.000 - progress_bar->GetSpriteWidth() / 2, 35.171);
 			progress_head->SetSpritePosition(44.000 - progress_bar->GetSpriteWidth(), 35.171);
 		}
@@ -686,12 +688,11 @@ void CGameMain::load_adventure_level(int level_id, long double fDeltaTime) {
 
 void CGameMain::load_bowling(long double fDeltaTime) {
 	static int zombie_counter = 0;
-	static int time_a_game = 10; // 一局时长
+	static int time_a_game = 180; // 一局时长
 	static int statr_timer = fDeltaTime;
 	const float first_zombie = 10;
 	static float zombie_interval = first_zombie; // 僵尸生成边界
 	if (bowling_init == false) {
-		game_start = fDeltaTime;
 		CSprite convery_belt("ConveryBelt");
 		convery_belt.SetSpriteImmovable(true);
 		bowling_init = true;
@@ -699,12 +700,12 @@ void CGameMain::load_bowling(long double fDeltaTime) {
 		total_zombie = zombie_counter;
 		bowling_counter = 0;
 
-		statr_timer = fDeltaTime;
+		game_start = fDeltaTime;
 		zombie_interval = first_zombie;
 	}
 	if (bowling_init == true) {
 
-		if ((fDeltaTime - statr_timer) / time_a_game <= 1) {
+		if ((fDeltaTime - game_start) / time_a_game <= 1) {
 			// 根据游戏时间 设置进度条长度
 			progress_bar->SetSpriteWidth(18 * (fDeltaTime - statr_timer) / time_a_game);
 			progress_bar->SetSpritePosition(44.000 - progress_bar->GetSpriteWidth() / 2, 35.171);
@@ -734,11 +735,34 @@ void CGameMain::load_bowling(long double fDeltaTime) {
 	}
 }
 
+void CGameMain::load_lianliankan(long double fDeltaTime)
+{
+	static int time_a_game = 120; // 一局时长
+	static int statr_timer = fDeltaTime;
+	if (llk_init == false) {
+
+		// 初始化连连看配置
+		LianLianKan::init();
+
+		game_start = fDeltaTime;
+		llk_init = true;
+	}
+	if ((fDeltaTime - game_start) / time_a_game <= 1) {
+		// 根据游戏时间 设置进度条长度
+		progress_bar->SetSpriteWidth(18 * (fDeltaTime - game_start) / time_a_game);
+		progress_bar->SetSpritePosition(44.000 - progress_bar->GetSpriteWidth() / 2, 35.171);
+		progress_head->SetSpritePosition(44.000 - progress_bar->GetSpriteWidth(), 35.171);
+	}
+}
+
 void CGameMain::reload() {
 	CStaticSprite flag("Flag");
 	flag.SetSpriteEnable(true);
+
+
 	adventure_init = false;
 	bowling_init = false;
+	llk_init = false;
 	zombie_count = 0;
 }
 

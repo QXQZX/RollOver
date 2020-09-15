@@ -109,6 +109,9 @@ void CSystem::OnMouseUp(const int iMouseType, const float fMouseX, const float f
 	case CGameMain::MapType::BowlingType:
 		Bowling::OnMouseUp(iMouseType, fMouseX, fMouseY);
 		break;
+	case CGameMain::MapType::LianLianKanType:
+		LianLianKan::OnMouseUp(iMouseType, fMouseX, fMouseY);
+		break;
 	default:
 		break;
 	}
@@ -163,6 +166,9 @@ void CSystem::OnSpriteColSprite(const char* szSrcName, const char* szTarName)
 		break;
 	case CGameMain::MapType::BowlingType:
 		Bowling::OnSpriteColSprite(szSrcName, szTarName);
+		break;
+	case CGameMain::MapType::LianLianKanType:
+		LianLianKan::OnSpriteColSprite(szSrcName, szTarName);
 		break;
 	default:
 		break;
